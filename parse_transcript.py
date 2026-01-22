@@ -16,6 +16,12 @@ from pathlib import Path
 from docx import Document
 
 
+# Constants
+TIMESTAMP_PATTERN = r'(\d+:\d+(?::\d+)?)'
+DEFAULT_SPEAKER = 'Unknown'
+DEFAULT_TIMESTAMP = '0:00:00'
+
+
 def parse_timestamp(timestamp_str):
     """
     Parse timestamp string to a standardized format.
@@ -62,7 +68,7 @@ def parse_docx_transcript(docx_path):
             
         # Check if this is a speaker/timestamp line
         # Typical format: "Speaker 1 0:00:05" or "Speaker 1: 0:00:05"
-        speaker_pattern = r'^(.+?)\s+(\d+:\d+(?::\d+)?)\s*$'
+        speaker_pattern = rf'^(.+?)\s+{TIMESTAMP_PATTERN}\s*$'
         match = re.match(speaker_pattern, text)
         
         if match:
@@ -85,14 +91,14 @@ def parse_docx_transcript(docx_path):
             else:
                 # Text without a speaker - check if it contains timestamp
                 # Sometimes format is: "0:00:05 Some text here"
-                time_first_pattern = r'^(\d+:\d+(?::\d+)?)\s+(.+)'
+                time_first_pattern = rf'^{TIMESTAMP_PATTERN}\s+(.+)'
                 match = re.match(time_first_pattern, text)
                 if match:
                     if current_text:
                         # Save previous entry
                         transcript_data.append({
-                            'Speaker': current_speaker or 'Unknown',
-                            'Timestamp': current_timestamp or '0:00:00',
+                            'Speaker': current_speaker or DEFAULT_SPEAKER,
+                            'Timestamp': current_timestamp or DEFAULT_TIMESTAMP,
                             'Text': ' '.join(current_text).strip()
                         })
                         current_text = []
@@ -162,6 +168,10 @@ def main():
         
         if not transcript_data:
             print("Warning: No transcript data found in the document.")
+            print("\nExpected format:")
+            print("  Speaker 1 0:00:05")
+            print("  Transcribed text goes here.")
+            print("\nPlease check that your document follows this format.")
             sys.exit(1)
         
         write_csv(transcript_data, output_path)
