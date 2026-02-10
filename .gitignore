@@ -26,6 +26,7 @@ wheels/
 *.egg
 
 # Virtual environments
+.venv/
 venv/
 ENV/
 env/
@@ -36,6 +37,9 @@ env/
 *.swp
 *.swo
 *~
+
+# Flet
+.flet/
 
 # OS
 .DS_Store
