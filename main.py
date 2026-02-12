@@ -152,6 +152,11 @@ def main(page: ft.Page):
                 ft.Text("• Edit speaker names if needed (e.g., replace 'Speaker 1' with actual names)"),
                 ft.Text("• When complete, click 'Add to document'"),
                 ft.Text("• Save the document with this EXACT name:", weight=ft.FontWeight.BOLD),
+                ft.Text("  - Click the File menu in Word", style=ft.TextStyle(italic=True)),
+                ft.Text("  - Select 'Create a Copy'", style=ft.TextStyle(italic=True)),
+                ft.Text("  - Select 'Download a Copy'", style=ft.TextStyle(italic=True)),
+                ft.Text("  - Click 'Download a Copy' to confirm", style=ft.TextStyle(italic=True)),
+                ft.Text("  - The file will be saved to your Downloads folder", style=ft.TextStyle(italic=True)),
                 ft.Container(
                     content=ft.Text(
                         expected_docx.name,
