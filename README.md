@@ -101,12 +101,15 @@ The generated PDF provides a formatted, human-readable version of the transcript
 
 ```
 Oral-History-Workflow/
-├── main.py              # Flet GUI application
-├── parse_transcript.py  # DOCX to CSV converter
-├── run.sh              # Auto-setup and launch script
-├── requirements.txt    # Python dependencies
-├── .venv/              # Virtual environment (auto-created)
-└── README.md           # This file
+├── main.py                    # Flet GUI application
+├── parse_transcript.py        # DOCX to CSV converter
+├── run.sh                     # Auto-setup and launch script
+├── sync_to_storage.sh         # Backup and sync to network storage
+├── requirements.txt           # Python dependencies
+├── .venv/                     # Virtual environment (auto-created)
+├── .gitignore                 # Git exclusions
+├── Reunion-2025-Oral-Histories/  # Oral history files (synced but not in Git)
+└── README.md                  # This file
 ```
 
 ## Manual Installation (Optional)
@@ -155,6 +158,63 @@ Custom CSV output filename (PDF will still use the .docx basename):
 ```bash
 python parse_transcript.py "Audio file.docx" "custom_output.csv"
 ```
+
+## Storage Synchronization
+
+The `sync_to_storage.sh` script provides automated backup and synchronization with network storage. This ensures that your work is safely backed up and that the `Reunion-2025-Oral-Histories` directory (which is excluded from Git via `.gitignore`) stays synchronized between your local machine and the storage server.
+
+### What It Does
+
+The script performs two main operations:
+
+1. **Full Workspace Backup**: Syncs the entire Oral-History-Workflow directory to network storage
+   - Excludes `.git/`, `.venv/`, and other hidden directories
+   - Uses `--delete` to mirror the source exactly
+   - Removes hidden flags from synced files for compatibility
+
+2. **Bidirectional Reunion-2025-Oral-Histories Sync**: 
+   - First pulls any changes **from storage to local** (gets remote updates)
+   - Then pushes any changes **from local to storage** (sends local updates)
+   - Preserves changes made on either side
+
+### Prerequisites
+
+Before running the script, you must mount the network storage:
+
+- **Network Path**: `smb://storage/MEDIADB/DGIngest/Oral-History-Workflow/`
+- **Mount Point**: `/Volumes/MEDIADB/`
+
+The script will check if the volume is mounted and exit with an error message if it's not available.
+
+### How to Use
+
+Simply run the script from the project root:
+
+```bash
+./sync_to_storage.sh
+```
+
+The script will:
+1. Verify the MEDIADB volume is mounted
+2. Sync the entire workspace to storage (one-way)
+3. Perform bidirectional sync for Reunion-2025-Oral-Histories
+4. Display progress and status messages
+5. Report success or any errors
+
+### When to Use
+
+Run the sync script:
+- **After processing oral histories** to back up your work
+- **Before starting new work** to pull any changes from storage
+- **At the end of each work session** for safety
+- **When switching between computers** to keep data synchronized
+
+### Technical Details
+
+- Uses `rsync` with archive mode (`-a`) to preserve permissions and attributes
+- Shows progress with `-vh` (verbose + human-readable)
+- Creates the storage directory structure if it doesn't exist
+- Exit code indicates success (0) or failure (non-zero)
 
 ## Troubleshooting
 
