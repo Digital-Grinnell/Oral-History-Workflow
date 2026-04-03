@@ -2,15 +2,17 @@
 """
 Oral History Workflow - Flet App
 A GUI application to streamline the oral history transcription workflow:
-1. Select an MP3 file
-2. Guide user through MS Word Online transcription
-3. Convert DOCX to CSV using parse_transcript.py
+1. (Optional) Convert WAV files to MP3
+2. Select an MP3 file
+3. Guide user through MS Word Online transcription
+4. Convert DOCX to CSV and PDF using parse_transcript.py
 """
 
 import flet as ft
 import os
 import sys
 import subprocess
+import shutil
 from pathlib import Path
 from datetime import datetime
 
@@ -23,6 +25,7 @@ def main(page: ft.Page):
     
     # State variables
     selected_mp3_path = None
+    selected_wav_path = None
     
     # UI Components
     status_text = ft.Text(
@@ -33,9 +36,16 @@ def main(page: ft.Page):
     )
     
     result_text = ft.Text(
-        "Select an MP3 file to get started",
+        "Select a WAV file to convert, or an MP3 file to begin transcription",
         size=14,
         selectable=True
+    )
+    
+    wav_result_text = ft.Text(
+        "",
+        size=14,
+        selectable=True,
+        visible=False
     )
     
     instructions_container = ft.Container(
@@ -47,6 +57,121 @@ def main(page: ft.Page):
     )
     
     convert_button = ft.Container(visible=False)
+    wav_convert_button = ft.Container(visible=False)
+    
+    def check_ffmpeg():
+        """Check if ffmpeg is installed."""
+        return shutil.which('ffmpeg') is not None
+    
+    async def pick_wav_file(e):
+        nonlocal selected_wav_path
+        
+        # Check if ffmpeg is available
+        if not check_ffmpeg():
+            result_text.value = "❌ Error: ffmpeg is not installed.\n\nTo convert WAV files, please install ffmpeg:\n• macOS: brew install ffmpeg\n• Linux: sudo apt install ffmpeg\n• Windows: Download from ffmpeg.org"
+            status_text.value = "ffmpeg not found"
+            status_text.color = ft.Colors.RED_400
+            page.update()
+            return
+        
+        status_text.value = "Opening file picker..."
+        status_text.color = ft.Colors.BLUE_400
+        page.update()
+        
+        files = await wav_file_picker.pick_files(
+            allowed_extensions=["wav", "WAV"],
+            dialog_title="Select a WAV file to convert to MP3"
+        )
+        
+        if files:
+            selected_wav_path = files[0].path
+            wav_file = Path(selected_wav_path)
+            
+            wav_result_text.value = f"Selected: {wav_file.name}\nLocation: {wav_file.parent}"
+            wav_result_text.visible = True
+            status_text.value = "WAV file selected"
+            status_text.color = ft.Colors.GREEN_400
+            wav_convert_button.visible = True
+            page.update()
+        else:
+            wav_result_text.visible = False
+            status_text.value = "File selection cancelled"
+            status_text.color = ft.Colors.ORANGE_400
+            wav_convert_button.visible = False
+            page.update()
+    
+    async def convert_wav_to_mp3(e):
+        """Convert WAV file to MP3 using ffmpeg."""
+        if not selected_wav_path:
+            result_text.value = "Error: No WAV file selected"
+            status_text.value = "Error"
+            status_text.color = ft.Colors.RED_400
+            page.update()
+            return
+        
+        wav_file = Path(selected_wav_path)
+        mp3_file = wav_file.with_suffix('.mp3')
+        
+        # Check if MP3 already exists
+        if mp3_file.exists():
+            result_text.value = f"⚠️  MP3 file already exists:\n{mp3_file}\n\nSkipping conversion."
+            status_text.value = "MP3 already exists"
+            status_text.color = ft.Colors.ORANGE_400
+            page.update()
+            return
+        
+        status_text.value = "Converting WAV to MP3..."
+        status_text.color = ft.Colors.BLUE_400
+        result_text.value = f"Converting {wav_file.name} to MP3...\nThis may take a few minutes for large files."
+        page.update()
+        
+        try:
+            # Run ffmpeg conversion
+            # -codec:a libmp3lame: Use LAME MP3 encoder
+            # -q:a 2: High quality (VBR, equivalent to ~190 kbps)
+            # -ar 44100: Sample rate 44.1 kHz
+            result = subprocess.run(
+                [
+                    'ffmpeg',
+                    '-i', str(wav_file),
+                    '-codec:a', 'libmp3lame',
+                    '-q:a', '2',
+                    '-ar', '44100',
+                    str(mp3_file),
+                    '-hide_banner',
+                    '-loglevel', 'error'
+                ],
+                capture_output=True,
+                text=True,
+                timeout=600  # 10 minute timeout
+            )
+            
+            if result.returncode == 0 and mp3_file.exists():
+                # Success!
+                wav_size = wav_file.stat().st_size / (1024 * 1024)  # MB
+                mp3_size = mp3_file.stat().st_size / (1024 * 1024)  # MB
+                
+                result_text.value = f"✅ Conversion successful!\n\nCreated: {mp3_file.name}\nLocation: {mp3_file.parent}\n\nWAV: {wav_size:.1f} MB → MP3: {mp3_size:.1f} MB\n\nYou can now use '2. Select MP3 File' to begin transcription."
+                status_text.value = "Conversion complete!"
+                status_text.color = ft.Colors.GREEN_400
+                wav_convert_button.visible = False
+            else:
+                # Error occurred
+                error_msg = result.stderr if result.stderr else "Unknown error"
+                result_text.value = f"❌ Error during conversion:\n\n{error_msg}"
+                status_text.value = "Conversion failed"
+                status_text.color = ft.Colors.RED_400
+                
+        except subprocess.TimeoutExpired:
+            result_text.value = f"❌ Conversion timed out after 10 minutes.\n\nThe file may be too large. Try a different file or use a command-line tool."
+            status_text.value = "Timeout"
+            status_text.color = ft.Colors.RED_400
+        except Exception as ex:
+            result_text.value = f"❌ Error during conversion:\n{str(ex)}"
+            status_text.value = "Error"
+            status_text.color = ft.Colors.RED_400
+        
+        page.update()
     
     async def pick_mp3_file(e):
         nonlocal selected_mp3_path
@@ -261,11 +386,23 @@ def main(page: ft.Page):
         
         page.update()
     
-    # Create FilePicker
+    # Create FilePickers
     file_picker = ft.FilePicker()
+    wav_file_picker = ft.FilePicker()
     page.services.append(file_picker)
+    page.services.append(wav_file_picker)
     
-    # Configure convert button
+    # Configure convert buttons
+    wav_convert_button.content = ft.Button(
+        "Convert WAV to MP3",
+        icon=ft.Icons.SYNC,
+        on_click=convert_wav_to_mp3,
+        style=ft.ButtonStyle(
+            color=ft.Colors.WHITE,
+            bgcolor=ft.Colors.PURPLE_700,
+        )
+    )
+    
     convert_button.content = ft.Button(
         "Convert DOCX to CSV & PDF",
         icon=ft.Icons.TRANSFORM,
@@ -289,16 +426,46 @@ def main(page: ft.Page):
                         color=ft.Colors.BLUE_900
                     ),
                     ft.Text(
-                        "MP3 → Transcription → CSV Pipeline",
+                        "WAV/MP3 → Transcription → CSV/PDF Pipeline",
                         size=16,
                         color=ft.Colors.GREY_700
                     ),
                     ft.Divider(height=20, color=ft.Colors.BLUE_200),
                     
+                    # Optional: WAV to MP3 converter
+                    ft.Container(
+                        content=ft.Column([
+                            ft.Text(
+                                "Optional: Convert WAV to MP3",
+                                size=14,
+                                weight=ft.FontWeight.BOLD,
+                                color=ft.Colors.GREY_700
+                            ),
+                            ft.Button(
+                                "Select WAV File",
+                                icon=ft.Icons.AUDIO_FILE,
+                                on_click=pick_wav_file,
+                                style=ft.ButtonStyle(
+                                    color=ft.Colors.WHITE,
+                                    bgcolor=ft.Colors.PURPLE_700,
+                                )
+                            ),
+                            wav_result_text,
+                            wav_convert_button,
+                        ], spacing=8),
+                        padding=ft.padding.only(bottom=10),
+                        bgcolor=ft.Colors.PURPLE_50,
+                        border=ft.Border.all(2, ft.Colors.PURPLE_200),
+                        border_radius=8,
+                        padding=15
+                    ),
+                    
+                    ft.Container(height=10),
+                    
                     # File picker button
                     ft.Container(
                         content=ft.Button(
-                            "1. Select MP3 File",
+                            "2. Select MP3 File",
                             icon=ft.Icons.AUDIO_FILE,
                             on_click=pick_mp3_file,
                             style=ft.ButtonStyle(

@@ -4,16 +4,18 @@ A streamlined GUI application for processing oral history audio files into struc
 
 ## Overview
 
-This repository contains a Flet-based GUI application and supporting scripts for processing oral history MP3 files into structured transcripts. The workflow guides you through:
+This repository contains a Flet-based GUI application and supporting scripts for processing oral history audio files into structured transcripts. The workflow guides you through:
 
-1. **Selecting an MP3 file** - Choose your oral history audio recording
-2. **MS Word Online Transcription** - Step-by-step instructions with direct links
-3. **Automated Conversion** - One-click conversion from DOCX to CSV and PDF formats
+1. **(Optional) WAV to MP3 Conversion** - Convert large WAV files to smaller MP3 format
+2. **Selecting an MP3 file** - Choose your oral history audio recording
+3. **MS Word Online Transcription** - Step-by-step instructions with direct links
+4. **Automated Conversion** - One-click conversion from DOCX to CSV and PDF formats
 
 No command-line expertise required! The application handles the entire workflow through an intuitive graphical interface.
 
 ## Features
 
+- 🎵 **WAV to MP3 Conversion** - Optional converter for large WAV files (uses ffmpeg)
 - 🎵 **MP3 File Selection** - Easy file picker for audio files
 - 📝 **Guided Transcription** - Clear instructions with links to MS Word Online
 - 🔄 **Automatic Conversion** - Convert transcripts to CSV and PDF with one button click
@@ -36,6 +38,21 @@ That's it! The script will automatically:
 
 ## Detailed Workflow
 
+### Step 0 (Optional): Convert WAV to MP3
+
+If you have WAV files, you can convert them to MP3 for easier uploading and storage:
+
+1. Click "Select WAV File" in the optional section at the top
+2. Choose your WAV file
+3. Click "Convert WAV to MP3"
+4. Wait for the conversion to complete
+5. The MP3 will be created in the same folder with the same name
+
+**Note:** Requires ffmpeg to be installed:
+- macOS: `brew install ffmpeg`
+- Linux: `sudo apt install ffmpeg`
+- Windows: Download from [ffmpeg.org](https://ffmpeg.org)
+
 ### Step 1: Launch the Application
 
 ```bash
@@ -44,7 +61,7 @@ That's it! The script will automatically:
 
 ### Step 2: Select MP3 File
 
-Click the "Select MP3 File" button and choose your oral history audio recording.
+Click the "2. Select MP3 File" button and choose your oral history audio recording.
 
 ### Step 3: Follow Transcription Instructions
 
@@ -96,6 +113,10 @@ The generated PDF provides a formatted, human-readable version of the transcript
 - macOS, Windows, or Linux
 - Microsoft 365 subscription (for transcription feature)
 - Internet connection
+- **Optional:** ffmpeg (for WAV to MP3 conversion)
+  - macOS: `brew install ffmpeg`
+  - Linux: `sudo apt install ffmpeg`  
+  - Windows: Download from [ffmpeg.org](https://ffmpeg.org)
 
 ## Project Structure
 
@@ -299,11 +320,19 @@ For issues or questions:
 
 ---
 
-**Version:** 2.1  
+**Version:** 2.2  
 **Last Updated:** April 3, 2026  
 **Status:** ✅ Production Ready
 
 ## Changelog
+
+### Version 2.2 (April 3, 2026)
+- Added WAV to MP3 conversion in the main GUI app
+- Optional WAV converter section at top of app interface
+- Uses ffmpeg for high-quality MP3 encoding (VBR ~190 kbps)
+- Auto-detects if ffmpeg is installed
+- Updated PROGRESS_STATUS.md to recommend MP3 creation for Silverman interviews
+- Improved sync_to_storage.sh to support multiple backup destinations
 
 ### Version 2.1 (April 3, 2026)
 - Added support for Acasis1TB volume backup in sync_to_storage.sh

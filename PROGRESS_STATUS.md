@@ -1,19 +1,20 @@
 # Reunion 2025 Oral Histories - Progress Status
 
-**Last Updated:** April 2, 2026
+**Last Updated:** April 3, 2026
 
 ## Overview
 
 This document tracks the processing status of all oral history interviews from the Reunion 2025 collection. Each interview progresses through the following workflow stages:
 
-1. **Audio** (WAV/MP3) - Original recording
-2. **Transcript** (DOCX) - MS Word Online transcription
-3. **CSV** - Structured data export
-4. **PDF** - Human-readable format
+1. **Audio (WAV)** - Original recording
+2. **Audio (MP3)** - Compressed format (REQUIRED for completion)
+3. **Transcript (DOCX)** - MS Word Online transcription
+4. **CSV** - Structured data export
+5. **PDF** - Human-readable format
 
 ## Progress Legend
 
-- ✅ **Complete** - All 4 stages finished (Audio, DOCX, CSV, PDF)
+- ✅ **Complete** - All 5 stages finished (WAV, MP3, DOCX, CSV, PDF)
 - 🟡 **In Progress** - Some stages completed
 - ⏳ **Pending** - Only audio file exists
 - 📁 **Archived** - Files in backup directory
@@ -22,7 +23,7 @@ This document tracks the processing status of all oral history interviews from t
 
 ## Interviews Status
 
-### ✅ Complete (3 interviews)
+### ✅ Complete (1 interview)
 
 #### 1. Randall Morgan
 **Progress:** 100% ✅ COMPLETE
@@ -31,32 +32,39 @@ This document tracks the processing status of all oral history interviews from t
 - ✅ CSV: `Randall_Morgan.csv` (in backup/OBJS/)
 - ✅ PDF: `Randall_Morgan.pdf` (in backup/OBJS/)
 
+---
+
+### 🟡 In Progress (7 interviews)
+
 #### 2. Silverman and Fardman 15
-**Progress:** 100% ✅ COMPLETE
-- ✅ Audio: `Silverman and Fardman 15.WAV` + MP3
+**Progress:** 75% 🟡 PARTIAL - MISSING MP3
+- ✅ Audio: `Silverman and Fardman 15.WAV`
+- ❌ MP3: **MISSING** - **REQUIRED** - Use app to convert WAV to MP3
 - ✅ Transcript: `Silverman_and_Fardman_15.docx` (in backup/OBJS/)
 - ✅ CSV: `Silverman_and_Fardman_15.csv` (in backup/OBJS/ and from-MacWhisper/)
 - ✅ PDF: `Silverman_and_Fardman_15.pdf` (in backup/OBJS/ and from-MacWhisper/)
 
+**Next Step:** Convert WAV to MP3 using the app's WAV converter
+
 #### 3. Silverman and Fardman 15_2
-**Progress:** 100% ✅ COMPLETE
-- ✅ Audio: `Silverman and Fardman 15 2.WAV` + MP3
+**Progress:** 75% 🟡 PARTIAL - MISSING MP3
+- ✅ Audio: `Silverman and Fardman 15 2.WAV`
+- ❌ MP3: **MISSING** - **REQUIRED** - Use app to convert WAV to MP3
 - ✅ Transcript: `Silverman_and_Fardman_15_2.docx` (in backup/OBJS/)
 - ✅ CSV: `Silverman_and_Fardman_15_2.csv` (in backup/OBJS/)
 - ✅ PDF: `Silverman_and_Fardman_15_2.pdf` (in backup/OBJS/)
 
----
-
-### 🟡 In Progress (5 interviews)
+**Next Step:** Convert WAV to MP3 using the app's WAV converter
 
 #### 4. Silverman and Fardman 15_3
-**Progress:** 50% 🟡 PARTIAL
-- ✅ Audio: `Silverman and Fardman 15 3.WAV` + MP3
+**Progress:** 50% 🟡 PARTIAL - MISSING MP3, CSV, PDF
+- ✅ Audio: `Silverman and Fardman 15 3.WAV`
+- ❌ MP3: **MISSING** - **REQUIRED** - Use app to convert WAV to MP3
 - ✅ Transcript: `Silverman_and_Fardman_15_3.docx` (in root directory)
 - ❌ CSV: **MISSING** - Run conversion
 - ❌ PDF: **MISSING** - Run conversion
 
-**Next Step:** Load the DOCX file in the app and click "Convert DOCX to CSV & PDF"
+**Next Step:** Convert WAV to MP3 first, then convert DOCX to CSV & PDF
 
 #### 5. Nick Nonas
 **Progress:** 50% 🟡 PARTIAL
@@ -239,8 +247,8 @@ These interviews have audio files but no transcripts yet. Follow the MS Word Onl
 
 | Status | Count | Percentage |
 |--------|-------|------------|
-| ✅ Complete (All 4 stages) | 3 | 13% |
-| 🟡 In Progress (DOCX exists) | 6 | 26% |
+| ✅ Complete (All stages) | 1 | 4% |
+| 🟡 In Progress (Some stages) | 8 | 35% |
 | ⏳ Pending (Audio only) | 14 | 61% |
 | **TOTAL INTERVIEWS** | **23** | **100%** |
 
@@ -248,7 +256,8 @@ These interviews have audio files but no transcripts yet. Follow the MS Word Onl
 
 | Stage | Count | Percentage |
 |-------|-------|------------|
-| Audio Files | 23/23 | 100% |
+| Audio Files (WAV) | 23/23 | 100% |
+| MP3 Files | 20/23 | 87% |
 | DOCX Transcripts | 9/23 | 39% |
 | CSV Exports | 3/23 | 13% |
 | PDF Exports | 3/23 | 13% |
@@ -257,17 +266,29 @@ These interviews have audio files but no transcripts yet. Follow the MS Word Onl
 
 ## Priority Action Items
 
-### Immediate (Quick Wins)
-These interviews already have DOCX transcripts and just need conversion:
+### HIGH PRIORITY: Create Required MP3 Files
+These Silverman interviews are missing REQUIRED MP3 files:
 
-1. **Silverman_and_Fardman_15_3.docx** (in root) → Convert to CSV/PDF
+1. **Silverman and Fardman 15.WAV** (3.5 GB) → **MUST** convert to MP3 using app
+2. **Silverman and Fardman 15 2.WAV** (3.5 GB) → **MUST** convert to MP3 using app  
+3. **Silverman and Fardman 15 3.WAV** (187 MB) → **MUST** convert to MP3 using app
+
+**Why Required:** MP3 format is the standard for archival and distribution
+**Benefit:** Reduces file size from GB to ~190 MB per file
+**Tool:** Use the app's WAV converter (Optional section at top)
+**Estimated Time:** ~10-15 minutes total for all three conversions
+
+### Immediate (Quick Wins)
+These interviews already have DOCX transcripts and just need final conversions:
+
+1. **Silverman_and_Fardman_15_3** → First create MP3, then convert DOCX to CSV/PDF
 2. **Nick_Nonas.docx** (in OBJS/) → Convert to CSV/PDF
 3. **Nick_Nonas_2.docx** (in OBJS/) → Convert to CSV/PDF
 4. **Rick_Kellar.docx** (in OBJS/) → Convert to CSV/PDF
 5. **dg_1770743912.docx** (in backup) → Convert to CSV/PDF
 6. **dg_1770743913.docx** (in backup) → Convert to CSV/PDF
 
-**Estimated Time:** ~15 minutes (6 conversions × 2-3 minutes each)
+**Estimated Time:** ~20-25 minutes (1 MP3 conversion + 6 DOCX conversions)
 
 ### Ongoing (Transcription Required)
 These 14 interviews need MS Word Online transcription (most time-consuming stage):
@@ -289,6 +310,8 @@ These 14 interviews need MS Word Online transcription (most time-consuming stage
 
 ## Notes
 
+- **MP3 Files Are Required:** All interviews must have MP3 files to be considered complete
+- **WAV Conversion:** Use the app's WAV converter to create MP3s from large WAV files
 - **File Locations:** Audio files are in root and OBJS/, processed files are in OBJS/ and backup folders
 - **Backup Folders:** `file_selector_20260210_111745_*` and `file_selector_20260212_095240_*` contain archived work
 - **Naming Convention:** Some files use spaces, others use underscores - standardize when creating new files
@@ -301,12 +324,15 @@ These 14 interviews need MS Word Online transcription (most time-consuming stage
 
 For each interview:
 
-1. **Upload audio** to MS Word Online → Use Transcribe feature
-2. **Edit transcript** in Word → Fix speaker names, review text
-3. **Save as DOCX** → Use same name as audio file, save in same folder
-4. **Run conversion** → Open app, select MP3, click "Convert DOCX to CSV & PDF"
-5. **Verify output** → Check that CSV and PDF files were created
-6. **Update this document** → Move interview to "Complete" section
+1. **(If needed) Convert WAV to MP3** → Use app's WAV converter - **REQUIRED**
+2. **Upload audio (MP3)** to MS Word Online → Use Transcribe feature
+3. **Edit transcript** in Word → Fix speaker names, review text
+4. **Save as DOCX** → Use same name as audio file, save in same folder
+5. **Run conversion** → Open app, select MP3, click "Convert DOCX to CSV & PDF"
+6. **Verify output** → Check that CSV and PDF files were created
+7. **Update this document** → Move interview to "Complete" section
+
+**Note:** All stages including MP3 creation must be completed for an interview to be marked as "Complete"
 
 ---
 
