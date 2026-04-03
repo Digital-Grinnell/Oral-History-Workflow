@@ -165,7 +165,7 @@ The `sync_to_storage.sh` script provides automated backup and synchronization wi
 
 ### What It Does
 
-The script performs two main operations:
+The script performs three main operations:
 
 1. **Full Workspace Backup**: Syncs the entire Oral-History-Workflow directory to network storage
    - Excludes `.git/`, `.venv/`, and other hidden directories
@@ -176,6 +176,12 @@ The script performs two main operations:
    - First pulls any changes **from storage to local** (gets remote updates)
    - Then pushes any changes **from local to storage** (sends local updates)
    - Preserves changes made on either side
+
+3. **Optional Acasis1TB Backup** (if mounted):
+   - Syncs the entire workspace to `/Volumes/Acasis1TB/Oral-History-Workflow/`
+   - Same exclusions as the main backup (`.git/`, `.venv/`, hidden directories)
+   - Non-blocking - script continues if this volume is not mounted
+   - Provides additional redundancy for local backups
 
 ### Prerequisites
 
@@ -282,6 +288,19 @@ For issues or questions:
 
 ---
 
-**Version:** 2.0  
-**Last Updated:** February 2026  
+**Version:** 2.1  
+**Last Updated:** April 3, 2026  
 **Status:** ✅ Production Ready
+
+## Changelog
+
+### Version 2.1 (April 3, 2026)
+- Added optional backup to Acasis1TB volume in sync_to_storage.sh
+- Script now syncs to `/Volumes/Acasis1TB/Oral-History-Workflow/` if the volume is mounted
+- Non-blocking: continues normally if Acasis1TB is not available
+
+### Version 2.0 (February 2026)
+- Initial production release with Flet GUI application
+- MS Word Online transcription workflow
+- Automated DOCX to CSV and PDF conversion
+- Network storage synchronization

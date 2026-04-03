@@ -71,3 +71,37 @@ else
   echo "Bidirectional sync failed with error code $?"
   exit 1
 fi
+
+# Optional sync to Acasis1TB if mounted
+if [ -d "/Volumes/Acasis1TB" ]; then
+  echo ""
+  echo "================================================"
+  echo "Syncing to Acasis1TB volume"
+  echo "================================================"
+  
+  ACASIS_DEST="/Volumes/Acasis1TB/Oral-History-Workflow/"
+  
+  echo "Starting sync from $SOURCE to $ACASIS_DEST"
+  
+  rsync -avh \
+    --progress \
+    --delete \
+    --exclude='.git/' \
+    --exclude='.venv/' \
+    --exclude='.*/' \
+    "$SOURCE" "$ACASIS_DEST"
+  
+  if [ $? -eq 0 ]; then
+    echo "================================================"
+    echo "Removing hidden flags from synced files..."
+    chflags -R nohidden "$ACASIS_DEST" 2>/dev/null || true
+    echo "Acasis1TB sync completed successfully!"
+  else
+    echo "================================================"
+    echo "Acasis1TB sync failed with error code $?"
+    echo "Continuing anyway..."
+  fi
+else
+  echo ""
+  echo "Note: Acasis1TB volume not mounted, skipping backup to that volume."
+fi
