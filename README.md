@@ -19,7 +19,8 @@ No command-line expertise required! The application handles the entire workflow 
 - 🎵 **MP3 File Selection** - Easy file picker for audio files
 - 📝 **Guided Transcription** - Clear instructions with links to MS Word Online
 - 🔄 **Automatic Conversion** - Convert transcripts to CSV and PDF with one button click
-- 📄 **Multiple Formats** - Creates both CSV (for data analysis) and PDF (for reading/archiving)
+- � **Auto-Update Progress Tracking** - Automatically scans and updates PROGRESS_STATUS.md
+- �📄 **Multiple Formats** - Creates both CSV (for data analysis) and PDF (for reading/archiving)
 - 📁 **Smart File Management** - All files saved with matching names in the same folder
 - ✅ **Error Checking** - Validates files exist before processing
 
@@ -81,6 +82,15 @@ Once you've saved the .docx transcript:
 - Click the "Convert DOCX to CSV & PDF" button
 - The app automatically processes the file
 - Both CSV and PDF files are saved in the same folder with the same base name
+- **PROGRESS_STATUS.md is automatically updated** after conversion
+
+### Step 5: Track Progress
+
+The app automatically maintains PROGRESS_STATUS.md:
+- **Auto-updates on startup** - Shows current status when app launches
+- **Auto-updates after conversions** - Updates after WAV→MP3 or DOCX→CSV/PDF
+- **Manual refresh** - Click "🔄 Refresh Progress Status" button anytime
+- **Real-time statistics** - Shows complete/in-progress/pending interview counts
 
 ### Output Formats
 
@@ -320,11 +330,18 @@ For issues or questions:
 
 ---
 
-**Version:** 2.2  
+**Version:** 2.3  
 **Last Updated:** April 3, 2026  
 **Status:** ✅ Production Ready
 
 ## Changelog
+
+### Version 2.3 (April 3, 2026)
+- **Auto-Update Progress Status**: App now automatically scans and updates PROGRESS_STATUS.md
+- Added "Refresh Progress Status" button to manually trigger status updates
+- Progress status automatically refreshed after WAV→MP3 and DOCX→CSV/PDF conversions
+- Auto-refresh runs on app startup to show current interview status
+- PROGRESS_STATUS.md now includes timestamps and auto-generated notice
 
 ### Version 2.2 (April 3, 2026)
 - Added WAV to MP3 conversion in the main GUI app
