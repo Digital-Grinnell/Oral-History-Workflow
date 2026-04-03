@@ -165,32 +165,39 @@ The `sync_to_storage.sh` script provides automated backup and synchronization wi
 
 ### What It Does
 
-The script performs three main operations:
+The script performs up to three operations, depending on which volumes are mounted:
 
-1. **Full Workspace Backup**: Syncs the entire Oral-History-Workflow directory to network storage
+1. **MEDIADB Network Storage Sync** (if mounted):
+   - Syncs the entire Oral-History-Workflow directory to network storage
    - Excludes `.git/`, `.venv/`, and other hidden directories
    - Uses `--delete` to mirror the source exactly
    - Removes hidden flags from synced files for compatibility
+   - Includes bidirectional sync for Reunion-2025-Oral-Histories:
+     * First pulls any changes **from storage to local** (gets remote updates)
+     * Then pushes any changes **from local to storage** (sends local updates)
+     * Preserves changes made on either side
 
-2. **Bidirectional Reunion-2025-Oral-Histories Sync**: 
-   - First pulls any changes **from storage to local** (gets remote updates)
-   - Then pushes any changes **from local to storage** (sends local updates)
-   - Preserves changes made on either side
-
-3. **Optional Acasis1TB Backup** (if mounted):
+2. **Acasis1TB Local Backup** (if mounted):
    - Syncs the entire workspace to `/Volumes/Acasis1TB/Oral-History-Workflow/`
-   - Same exclusions as the main backup (`.git/`, `.venv/`, hidden directories)
-   - Non-blocking - script continues if this volume is not mounted
-   - Provides additional redundancy for local backups
+   - Same exclusions as network backup (`.git/`, `.venv/`, hidden directories)
+   - Provides local redundancy and faster access
+
+**Note:** At least one volume must be mounted for the script to run. Both can be used simultaneously for maximum redundancy.
 
 ### Prerequisites
 
-Before running the script, you must mount the network storage:
+Before running the script, you must mount at least one backup volume:
 
+**Network Storage (MEDIADB):**
 - **Network Path**: `smb://storage/MEDIADB/DGIngest/Oral-History-Workflow/`
 - **Mount Point**: `/Volumes/MEDIADB/`
+- Includes bidirectional sync for Reunion-2025-Oral-Histories
 
-The script will check if the volume is mounted and exit with an error message if it's not available.
+**Local Backup (Acasis1TB):**
+- **Mount Point**: `/Volumes/Acasis1TB/`
+- Local external drive backup
+
+The script will check for both volumes and use whichever is available. If neither is mounted, it will exit with an error message.
 
 ### How to Use
 
@@ -201,11 +208,15 @@ Simply run the script from the project root:
 ```
 
 The script will:
-1. Verify the MEDIADB volume is mounted
-2. Sync the entire workspace to storage (one-way)
-3. Perform bidirectional sync for Reunion-2025-Oral-Histories
-4. Display progress and status messages
-5. Report success or any errors
+1. Check which backup volumes are mounted
+2. Exit with error if neither volume is available
+3. Sync to MEDIADB (if mounted):
+   - Full workspace backup
+   - Bidirectional sync for Reunion-2025-Oral-Histories
+4. Sync to Acasis1TB (if mounted):
+   - Full workspace backup
+5. Display progress and status messages
+6. Report success or any errors
 
 ### When to Use
 
@@ -295,9 +306,10 @@ For issues or questions:
 ## Changelog
 
 ### Version 2.1 (April 3, 2026)
-- Added optional backup to Acasis1TB volume in sync_to_storage.sh
-- Script now syncs to `/Volumes/Acasis1TB/Oral-History-Workflow/` if the volume is mounted
-- Non-blocking: continues normally if Acasis1TB is not available
+- Added support for Acasis1TB volume backup in sync_to_storage.sh
+- Both MEDIADB and Acasis1TB volumes are now optional (at least one required)
+- Script detects which volumes are mounted and syncs to all available
+- Improved error handling and status reporting for multiple backup destinations
 
 ### Version 2.0 (February 2026)
 - Initial production release with Flet GUI application
