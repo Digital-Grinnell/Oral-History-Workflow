@@ -1,4 +1,4 @@
-# Oral History Workflow
+# Oral History Workflow (Whisper Branch)
 
 A streamlined GUI application for processing oral history audio files into structured transcripts for use with CollectionBuilder and preservation storage.
 
@@ -8,16 +8,34 @@ This repository contains a Flet-based GUI application and supporting scripts for
 
 1. **(Optional) WAV to MP3 Conversion** - Convert large WAV files to smaller MP3 format
 2. **Selecting an MP3 file** - Choose your oral history audio recording
-3. **MS Word Online Transcription** - Step-by-step instructions with direct links
-4. **Automated Conversion** - One-click conversion from DOCX to CSV and PDF formats
+3. **🤖 AUTOMATED TRANSCRIPTION (NEW!)** - AI-powered transcription using OpenAI Whisper
+4. **OR: Manual MS Word Online Transcription** - Traditional step-by-step method
+5. **Automated Conversion** - One-click conversion from DOCX to CSV and PDF formats
 
 No command-line expertise required! The application handles the entire workflow through an intuitive graphical interface.
+
+## Branch Information
+
+⚠️ **This is the `whisper` branch** - Experimental Whisper AI transcription integration
+
+This branch adds automated AI transcription using OpenAI Whisper. Features include:
+- Fully automated transcription (no manual upload to Word Online)
+- Runs completely on your local machine
+- No Microsoft 365 subscription required
+- Multiple model sizes for different accuracy/speed tradeoffs
+
+The master branch still uses the traditional MS Word Online transcription workflow.
 
 ## Features
 
 - 🎵 **WAV to MP3 Conversion** - Optional converter for large WAV files (uses ffmpeg)
 - 🎵 **MP3 File Selection** - Easy file picker for audio files
-- 📝 **Guided Transcription** - Clear instructions with links to MS Word Online
+- 🤖 **AI-Powered Transcription (NEW!)** - Automatic transcription using OpenAI Whisper
+  - Multiple model sizes: tiny/base/small/medium/large
+  - Runs entirely on your local machine (no cloud APIs)
+  - Automatically formats transcripts with speakers and timestamps
+  - No Microsoft 365 subscription required!
+- 📝 **Manual Transcription** - Traditional MS Word Online method still available
 - 🔄 **Automatic Conversion** - Convert transcripts to CSV and PDF with one button click
 - � **Auto-Update Progress Tracking** - Automatically scans and updates PROGRESS_STATUS.md
 - �📄 **Multiple Formats** - Creates both CSV (for data analysis) and PDF (for reading/archiving)
@@ -64,9 +82,44 @@ If you have WAV files, you can convert them to MP3 for easier uploading and stor
 
 Click the "2. Select MP3 File" button and choose your oral history audio recording.
 
-### Step 3: Follow Transcription Instructions
+### Step 3: Transcribe Your Audio
 
-The app will display detailed instructions for:
+The app offers two transcription options:
+
+#### Option 1: Automated AI Transcription (RECOMMENDED) 🤖
+
+**NEW in Whisper Branch!** Use OpenAI Whisper for fully automated transcription:
+
+1. After selecting your MP3, the app shows the Whisper option at the top
+2. Choose a model size from the dropdown:
+   - **Tiny** (~1GB RAM): Fastest, least accurate - good for testing
+   - **Base** (~1GB RAM): Fast with decent accuracy
+   - **Small** (~2GB RAM): **RECOMMENDED** - Best balance of speed and accuracy
+   - **Medium** (~5GB RAM): High accuracy, slower
+   - **Large** (~10GB RAM): Best accuracy, slowest, requires powerful hardware
+3. Click "🎙️ Transcribe with Whisper"
+4. Wait for transcription to complete (1-5 minutes per hour of audio)
+   - First run downloads the selected model (~100MB to 3GB)
+   - Subsequent runs are faster
+5. The DOCX file is automatically created and saved in the same folder as the MP3
+6. Proceed to Step 4 to convert to CSV/PDF
+7. **PROGRESS_STATUS.md is automatically updated**
+
+**Advantages:**
+- ✅ No Microsoft 365 subscription required
+- ✅ Runs completely offline on your computer
+- ✅ Free and open source
+- ✅ Automatic speaker detection and timestamps
+- ✅ One-click operation
+
+**Requirements:**
+- Python packages: `openai-whisper`, `torch`, `torchaudio` (auto-installed by run.sh)
+- RAM: 1-10GB depending on model size
+- Disk space: 100MB-3GB for model download (one-time)
+
+#### Option 2: Manual MS Word Online Transcription
+
+If you prefer the traditional method or need to edit an existing transcript:
 
 1. Opening Microsoft Word Online (with direct link)
 2. Using Word's Transcribe feature
@@ -119,11 +172,29 @@ The generated PDF provides a formatted, human-readable version of the transcript
 
 ## Requirements
 
+### Basic Requirements
 - Python 3.8 or higher
 - macOS, Windows, or Linux
-- Microsoft 365 subscription (for transcription feature)
+- Internet connection (for initial setup and model downloads)
+
+### For Automated Transcription (Whisper - NEW!)
+- **Python packages** (auto-installed by `./run.sh`):
+  - `openai-whisper>=20231117`
+  - `torch>=2.0.0`
+  - `torchaudio>=2.0.0`
+- **RAM**: 1-10GB depending on model size
+  - Tiny/Base: ~1GB
+  - Small: ~2GB (recommended)
+  - Medium: ~5GB
+  - Large: ~10GB
+- **Disk space**: 100MB-3GB for one-time model download
+
+### For Manual Transcription (Word Online)
+- Microsoft 365 subscription
 - Internet connection
-- **Optional:** ffmpeg (for WAV to MP3 conversion)
+
+### Optional (for WAV to MP3 conversion)
+- **ffmpeg** - Audio conversion tool
   - macOS: `brew install ffmpeg`
   - Linux: `sudo apt install ffmpeg`  
   - Windows: Download from [ffmpeg.org](https://ffmpeg.org)

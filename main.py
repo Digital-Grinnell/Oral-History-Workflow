@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Oral History Workflow - Flet App
+Oral History Workflow - Flet App (Whisper Branch)
 A GUI application to streamline the oral history transcription workflow:
 1. (Optional) Convert WAV files to MP3
 2. Select an MP3 file
-3. Guide user through MS Word Online transcription
-4. Convert DOCX to CSV and PDF using parse_transcript.py
-5. Auto-update PROGRESS_STATUS.md
+3. AUTOMATED TRANSCRIPTION with OpenAI Whisper (NEW!)
+4. OR: Manual MS Word Online transcription (legacy)
+5. Convert DOCX to CSV and PDF using parse_transcript.py
+6. Auto-update PROGRESS_STATUS.md
 """
 
 import flet as ft
@@ -18,6 +19,15 @@ import re
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
+
+# Import Whisper transcription module
+try:
+    import transcribe_whisper
+    WHISPER_AVAILABLE = True
+except ImportError:
+    WHISPER_AVAILABLE = False
+    transcribe_whisper = None
+
 
 
 def scan_reunion_directory():
@@ -356,6 +366,24 @@ def main(page: ft.Page):
     convert_button = ft.Container(visible=False)
     wav_convert_button = ft.Container(visible=False)
     
+    # Whisper transcription UI components
+    whisper_model_dropdown = ft.Dropdown(
+        label="Whisper Model",
+        width=300,
+        options=[
+            ft.dropdown.Option("tiny", "Tiny (~1GB RAM, fastest, least accurate)"),
+            ft.dropdown.Option("base", "Base (~1GB RAM, fast)"),
+            ft.dropdown.Option("small", "Small (~2GB RAM, balanced) - RECOMMENDED"),
+            ft.dropdown.Option("medium", "Medium (~5GB RAM, accurate)"),
+            ft.dropdown.Option("large", "Large (~10GB RAM, most accurate, slowest)"),
+        ],
+        value="small",
+        visible=False
+    )
+    
+    whisper_transcribe_button = ft.Container(visible=False)
+    whisper_progress_text = ft.Text("", size=13, color=ft.Colors.BLUE_700, visible=False)
+    
     def check_ffmpeg():
         """Check if ffmpeg is installed."""
         return shutil.which('ffmpeg') is not None
@@ -505,13 +533,148 @@ def main(page: ft.Page):
             convert_button.visible = False
             page.update()
     
+    async def transcribe_with_whisper(e):
+        """Transcribe MP3 file using OpenAI Whisper."""
+        if not selected_mp3_path:
+            result_text.value = "Error: No MP3 file selected"
+            status_text.value = "Error"
+            status_text.color = ft.Colors.RED_400
+            page.update()
+            return
+        
+        if not WHISPER_AVAILABLE:
+            result_text.value = "❌ Error: Whisper is not installed.\n\nTo use automated transcription, install Whisper:\n  pip install openai-whisper torch torchaudio"
+            status_text.value = "Whisper not available"
+            status_text.color = ft.Colors.RED_400
+            page.update()
+            return
+        
+        mp3_file = Path(selected_mp3_path)
+        expected_docx = mp3_file.with_suffix('.docx')
+        model_size = whisper_model_dropdown.value
+        
+        # Check if DOCX already exists
+        if expected_docx.exists():
+            result_text.value = f"⚠️  DOCX file already exists:\n{expected_docx}\n\nSkipping transcription."
+            status_text.value = "DOCX already exists"
+            status_text.color = ft.Colors.ORANGE_400
+            page.update()
+            return
+        
+        status_text.value = f"Transcribing with Whisper ({model_size} model)..."
+        status_text.color = ft.Colors.BLUE_400
+        whisper_progress_text.value = "Loading Whisper model... This may take a minute on first run."
+        whisper_progress_text.visible = True
+        whisper_transcribe_button.visible = False
+        page.update()
+        
+        def progress_callback(message):
+            """Update UI with progress messages."""
+            whisper_progress_text.value = message
+            page.update()
+        
+        try:
+            # Run transcription in a thread pool to avoid blocking UI
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(
+                None,
+                transcribe_whisper.transcribe_and_create_docx,
+                str(mp3_file),
+                str(expected_docx),
+                model_size,
+                "en",
+                progress_callback
+            )
+            
+            if expected_docx.exists():
+                # Success!
+                result_text.value = f"✅ Transcription successful!\n\nCreated: {expected_docx.name}\nLocation: {expected_docx.parent}\n\nYou can now convert to CSV/PDF or edit the DOCX first."
+                status_text.value = "Transcription complete!"
+                status_text.color = ft.Colors.GREEN_400
+                whisper_progress_text.visible = False
+                
+                # Show the convert button
+                convert_button.visible = True
+                
+                # Auto-refresh progress status
+                page.update()
+                await refresh_status(None)
+            else:
+                raise Exception("DOCX file was not created")
+                
+        except Exception as ex:
+            result_text.value = f"❌ Error during transcription:\n{str(ex)}\n\nTry:\n• Using a smaller model (tiny/base)\n• Checking your audio file is valid\n• Ensuring you have enough RAM"
+            status_text.value = "Transcription failed"
+            status_text.color = ft.Colors.RED_400
+            whisper_progress_text.visible = False
+            whisper_transcribe_button.visible = True
+        
+        page.update()
+    
     def show_transcription_instructions(mp3_file):
         """Display step-by-step transcription instructions."""
         expected_docx = mp3_file.with_suffix('.docx')
         
-        instructions_content = ft.Column([
+        # Build instructions with Whisper option first (if available)
+        instruction_sections = []
+        
+        # Add Whisper option if available
+        if WHISPER_AVAILABLE:
+            whisper_section = ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "🤖 OPTION 1: AUTOMATED TRANSCRIPTION (RECOMMENDED)",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color=ft.Colors.GREEN_900
+                    ),
+                    ft.Divider(height=10, color=ft.Colors.GREEN_200),
+                    ft.Text(
+                        "Use OpenAI Whisper to automatically transcribe your audio file.",
+                        size=13,
+                        color=ft.Colors.GREY_800
+                    ),
+                    ft.Container(height=5),
+                    ft.Row([
+                        whisper_model_dropdown,
+                    ]),
+                    ft.Container(height=5),
+                    ft.ElevatedButton(
+                        "🎙️ Transcribe with Whisper",
+                        icon=ft.Icons.RECORD_VOICE_OVER,
+                        on_click=transcribe_with_whisper,
+                        style=ft.ButtonStyle(
+                            color=ft.Colors.WHITE,
+                            bgcolor=ft.Colors.GREEN_700,
+                        ),
+                        tooltip="Automatically transcribe audio using AI"
+                    ),
+                    whisper_progress_text,
+                    ft.Container(height=5),
+                    ft.Text(
+                        "Note: First run downloads the model (~1-10GB depending on size). Processing takes 1-5 minutes per hour of audio.",
+                        size=11,
+                        italic=True,
+                        color=ft.Colors.GREY_600
+                    ),
+                ], spacing=5),
+                bgcolor=ft.Colors.GREEN_50,
+                border=ft.Border.all(2, ft.Colors.GREEN_300),
+                border_radius=8,
+                padding=15
+            )
+            instruction_sections.append(whisper_section)
+            instruction_sections.append(ft.Container(height=15))
+            
+            # Store button reference for visibility control
+            nonlocal whisper_transcribe_button
+            whisper_transcribe_button = whisper_section
+            whisper_model_dropdown.visible = True
+        
+        # Add manual Word Online instructions
+        manual_section = ft.Column([
             ft.Text(
-                "📝 TRANSCRIPTION INSTRUCTIONS",
+                f"{'📝 OPTION 2: MANUAL TRANSCRIPTION' if WHISPER_AVAILABLE else '📝 TRANSCRIPTION INSTRUCTIONS'}",
                 size=18,
                 weight=ft.FontWeight.BOLD,
                 color=ft.Colors.BLUE_900
@@ -618,6 +781,11 @@ def main(page: ft.Page):
             ),
             ft.Text("Once you've saved the DOCX file, click the button below to create both CSV and PDF versions."),
         ], spacing=8)
+        
+        instruction_sections.append(manual_section)
+        
+        # Combine all sections
+        instructions_content = ft.Column(instruction_sections, spacing=0)
         
         instructions_container.content = instructions_content
         instructions_container.visible = True
